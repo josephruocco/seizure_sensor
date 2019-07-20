@@ -14,8 +14,11 @@ int Z = analogRead(A1);
 int jerks = 0;
 unsigned long jtime1 = 0; // store the initial time
 unsigned long jtime2; // store the current time
+unsigned long previousMillis; 
 bool currentJerk = false;
 bool seizing = false;
+int prevBPM;
+
 
 int mled = 47; // myoware
 int hled = 35; // heart rate
@@ -46,6 +49,7 @@ void setup() {
 
 int bpmCounter = 0;
 boolean stabilized = false;
+int bpmDiff; 
 
 void loop() {
 
@@ -53,13 +57,14 @@ void loop() {
 
 int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor 
 
-
   
 if (pulseSensor.sawStartOfBeat() && !stabilized) {            // Constantly test to see if "a beathappened".
  //Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
  //Serial.print("BPM: ");                        // Print phrase "BPM: "
 if (myBPM >= 60 && myBPM <= 100){
   Serial.println("STABILIZED");
+  prevBPM = myBPM;
+  previousMillis = millis();
   stabilized = true;
 }
  Serial.println(myBPM);
@@ -74,20 +79,27 @@ if (stabilized){
     }*/
   
 //tracking seizure 
-long previousMillis = 0;
 unsigned long currentMillis = millis();
-int prevBMP = myBPM;
-	
-if( currentMillis - previousMillis == 5000){
-	if (myBPM - prevBPM >= 40){
-		seizing = true;
-		Serial.println("seizing");
-	}
-	previousMillis = currentMillis;
+
+
+//Serial.println("current bpm");
+//Serial.println(myBPM);
+
+
+//Serial.println(currentMillis - previousMillis);
+
+if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <= 7015) {
+     bpmDiff = myBPM - prevBPM;
+     previousMillis = currentMillis;
+     
+    Serial.print("DIFF: ");
+    Serial.println(bpmDiff); 
+    prevBPM = myBPM;
+  
 }
 
-	
-	
+  
+  
  //muscle sensor tracks tension
     if(analogRead(A4) > mthresh)  
     { digitalWrite(mled, HIGH);
@@ -118,7 +130,7 @@ if( currentMillis - previousMillis == 5000){
     Serial.print(jerks);
     Serial.println(" jerks.");
   jerks = 0;
-  	}// end jerk sensor 
+    }// end jerk sensor 
   
 
 
@@ -149,7 +161,7 @@ Partial: elevated heart rate but symptoms are inconsistent
  */
 
   
-}
+
 
 
 
