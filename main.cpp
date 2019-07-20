@@ -11,6 +11,8 @@ int X = analogRead(A0);
 int Y = analogRead(A2);
 int Z = analogRead(A1);
 
+bool data = false; //data collected post-seizure
+
 int jerks = -1;
 unsigned long jtime1 = 0; // store the initial time
 unsigned long jtime2; // store the current time
@@ -20,6 +22,7 @@ unsigned long seizeDuration;
 bool currentJerk = false;
 bool seizing = false;
 int prevBPM;
+int bpmDiff; 
 
 
 int mled = 47; // myoware
@@ -51,7 +54,7 @@ void setup() {
 
 int bpmCounter = 0;
 boolean stabilized = false;
-int bpmDiff; 
+
 
 void loop() {
 
@@ -84,51 +87,64 @@ if (stabilized){
 unsigned long currentMillis = millis();
 
 
-	
+  
 //calculating BMP diff every 7 seconds
 if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <= 7015 && !seizing) {
      bpmDiff = myBPM - prevBPM;
      previousMillis = currentMillis;
      
     //seize threshold = 50+bmp jump
-	if (bmpDiff >= 50){
-		jerks = 0;
-		seizing = true;
-	}
-	
+  if (bpmDiff >= 50){
+    jerks = 0;
+    seizing = true;
+  }
+  
     prevBPM = myBPM;
     startSeizeMillis = currentMillis;
 }
 
   //calculating seize duration
   if (seizing){
-	  if (myBPM <= 110){
-		  seizeDuration = currentMillis - startSeizeMillis;
-		  Serial.print(seizeDuration);
-		  seizing = false;
-	  }
-  }
-	  
-	
-while (seizing){
+    Serial.println("SEIZEING");
+    Serial.print(myBPM);
+    Serial.println("BPM");
+
+
+    
     //seize threshold: 650 
     if(analogRead(A0) >= 650 && !currentJerk) {
     currentJerk = true;
     jerks+=1; 
+    //Serial.println(jerks);
     }
 
-    //recording jerk	
+    //recording jerk  
     if (currentJerk && analogRead(A0) < 650){
       currentJerk = false;
     }
-}
-	
+    
+   
+  
+    if (myBPM <= 110){
+      seizeDuration = currentMillis - startSeizeMillis;
+     
+      Serial.print("STOPPED SEIZING");
+      seizing = false;
+    }
+  }
+    
+
+  
 //printing number of jerks after a seizure had occured
-if (!seizing && jerks!= -1){
-	Serial.print("jerks: ");
-	Serial.println(jerks);
+if (!seizing && jerks!= -1 && !data){
+  Serial.print("DATA: ");
+  Serial.print("SEIZE DURATION:");
+   Serial.println(seizeDuration);
+  Serial.print("jerks: ");
+  Serial.println(jerks);
+  data = true; //prints once
 }
-	
+  
  //muscle sensor tracks tension
     if(analogRead(A4) > mthresh)  
     { digitalWrite(mled, HIGH);
