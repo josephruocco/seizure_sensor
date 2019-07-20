@@ -42,21 +42,26 @@ void setup() {
 
 }
 
+int bpmCounter = 0;
+
 void loop() {
 
+   
 
   if(analogRead(A4) > mthresh)
     { digitalWrite(mled, HIGH);}
   else
     { digitalWrite(mled, LOW);} 
 
-
-int myBPM = pulseSensor.getBeatsPerMinute();  // Calls function on our pulseSensor object that returns BPM as an "int".
+if (bpmCounter % 20 == 0){
+int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor object that returns BPM as an "int".
   // "myBPM" hold this BPM value now.
+  bpmCounter++; 
+}
 
 if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beat happened".
-    Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
- Serial.print("BPM: ");                        // Print phrase "BPM: "
+ //Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+ //Serial.print("BPM: ");                        // Print phrase "BPM: "
  Serial.println(myBPM);                        // Print the value inside of myBPM.
 }
 
