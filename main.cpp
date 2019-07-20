@@ -43,6 +43,7 @@ void setup() {
 }
 
 int bpmCounter = 0;
+boolean stabilized = false;
 
 void loop() {
 
@@ -63,12 +64,12 @@ if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a b
  //Serial.print("BPM: ");                        // Print phrase "BPM: "
 if (myBPM >= 60 && myBPM <= 100){
 	Serial.println("STABILIZED");
+	stabilized = true;
 }	
  Serial.println(myBPM);                        // Print the value inside of myBPM.
 }
 
   delay(20);                    // considered best practice in a simple sketch.
-
 
 
 /*
@@ -100,6 +101,11 @@ if (myBPM >= 60 && myBPM <= 100){
     count = 0;
 
   }
+	
+	if (stabilized){
+		//heart code goes here
+	}
+
 
 }
 
