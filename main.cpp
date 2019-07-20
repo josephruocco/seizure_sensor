@@ -1,6 +1,9 @@
 #define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
 #include "PulseSensorPlayground.h"     // Includes the PulseSensorPlayground Library.
 
+#define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
+#include "PulseSensorPlayground.h"     // Includes the PulseSensorPlayground Library.
+
 //int t = analogRead(A5); // temperature
 int m = analogRead(A4); // myoware
 int h = analogRead(A3); // heart rate
@@ -12,7 +15,7 @@ int jerks = 0;
 unsigned long jtime1 = 0; // store the initial time
 unsigned long jtime2; // store the current time
 bool currentJerk = false;
-
+bool seizing = false;
 
 int mled = 47; // myoware
 int hled = 35; // heart rate
@@ -62,10 +65,6 @@ if (myBPM >= 60 && myBPM <= 100){
  Serial.println(myBPM);
  // delay(20);                    // considered best practice in a simple sketch.// Print the value inside of myBPM.
 }
-
-
- 
- 
   
 //conditional runs when pulse sensor detects a stabilized heart beat  
 if (stabilized){
@@ -74,6 +73,21 @@ if (stabilized){
     stabilized = false;
     }*/
   
+//tracking seizure 
+long previousMillis = 0;
+unsigned long currentMillis = millis();
+int prevBMP = myBPM;
+	
+if( currentMillis - previousMillis == 5000){
+	if (myBPM - prevBPM >= 40){
+		seizing = true;
+		Serial.println("seizing");
+	}
+	previousMillis = currentMillis;
+}
+
+	
+	
  //muscle sensor tracks tension
     if(analogRead(A4) > mthresh)  
     { digitalWrite(mled, HIGH);
@@ -104,10 +118,35 @@ if (stabilized){
     Serial.print(jerks);
     Serial.println(" jerks.");
   jerks = 0;
-  }// end jerk sensor 
-  } //end stabilized 
+  	}// end jerk sensor 
+  
+
+
+
+
+
+} //end stabilized 
     
 
+
+  
+}
+
+
+
+
+/*
+
+WHILE HEART RATE IS HIGH:
+
+Tonic seizure: stiff — high tension
+Clonic seizure: repeating jerking motions 
+Myoclonic seizure: inconsistent jerks and twitches 
+Atonic seizure: loose, not tension, no jerks 
+Tonic-clonic seizure: stiffness and repeated jerks
+
+Partial: elevated heart rate but symptoms are inconsistent
+ */
 
   
 }
