@@ -23,6 +23,8 @@ bool currentJerk = false;
 bool seizing = false;
 int prevBPM;
 int bpmDiff; 
+int tension;
+int tensionAvg;
 
 
 int mled = 47; // myoware
@@ -123,8 +125,34 @@ if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <
       currentJerk = false;
     }
     
-   
-  
+	  
+	//muscle sensor tracks tension
+	//collects sample_count number of tension values
+	//discards max and min values and stores average
+   	int tensionTotal = 0;
+	int min = 645;
+	int max = 0;
+	int sample_count = 10;
+		
+	for (int i=0; i < sample_count; i++){
+		tension = analogRead(A4);
+		if (tension > max){
+				max = tension;
+		}
+		if (tension < min){
+			min = tension;
+		}
+		tensionTotal += tension;
+		tensionTotal -= min;
+		tensionTotal -= max;
+	}
+
+    tensionAvg = int(total / (sample_count-2))
+
+	 
+	  
+	  
+    //stops seizing
     if (myBPM <= 110){
       seizeDuration = currentMillis - startSeizeMillis;
      
@@ -140,21 +168,14 @@ if (!seizing && jerks!= -1 && !data){
   Serial.print("DATA: ");
   Serial.print("SEIZE DURATION:");
    Serial.println(seizeDuration);
-  Serial.print("jerks: ");
+  Serial.print("JERKS: ");
   Serial.println(jerks);
+  Serial.print("TENSION AVG: ");
+  Serial.println(tensionAvg);
   data = true; //prints once
 }
   
- //muscle sensor tracks tension
-    if(analogRead(A4) > mthresh)  
-    { digitalWrite(mled, HIGH);
-      //Serial.println("TENSE");
-      }
-      else
-    { digitalWrite(mled, LOW);} //end muscle sensor
-    
-  } //end stabilized  
-}
+
 
 /*
 
