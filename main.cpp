@@ -111,19 +111,19 @@ if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <
 	  
 	
 while (seizing){
-	
+    //seize threshold: 650 
     if(analogRead(A0) >= 650 && !currentJerk) {
     currentJerk = true;
     jerks+=1; 
-    
     }
 
+    //recording jerk	
     if (currentJerk && analogRead(A0) < 650){
       currentJerk = false;
     }
 }
 	
-
+//printing number of jerks after a seizure had occured
 if (!seizing && jerks!= -1){
 	Serial.print("jerks: ");
 	Serial.println(jerks);
@@ -137,18 +137,8 @@ if (!seizing && jerks!= -1){
       else
     { digitalWrite(mled, LOW);} //end muscle sensor
     
-
-
-  } //end stabilized 
-
-    
-
-
-  
+  } //end stabilized  
 }
-
-
-
 
 /*
 
@@ -158,25 +148,6 @@ Tonic seizure: stiff — high tension
 Clonic seizure: repeating jerking motions 
 Myoclonic seizure: inconsistent jerks and twitches 
 Atonic seizure: loose, not tension, no jerks 
-Tonic-clonic seizure: stiffness and repeated jerks
-
-Partial: elevated heart rate but symptoms are inconsistent
- */
-
-  
-
-
-
-
-
-/*
-
-WHILE HEART RATE IS HIGH:
-
-Tonic seizure: stiff — high tension
-Clonic seizure: repeating jerking motions 
-Myoclonic seizure: inconsistent jerks and twitches 
-Atonic seizure: loose, not tension
 Tonic-clonic seizure: stiffness and repeated jerks
 
 Partial: elevated heart rate but symptoms are inconsistent
