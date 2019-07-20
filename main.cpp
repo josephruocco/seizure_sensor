@@ -11,10 +11,12 @@ int X = analogRead(A0);
 int Y = analogRead(A2);
 int Z = analogRead(A1);
 
-int jerks = 0;
+int jerks = -1;
 unsigned long jtime1 = 0; // store the initial time
 unsigned long jtime2; // store the current time
 unsigned long previousMillis; 
+unsigned long startSeizeMillis;
+unsigned long seizeDuration;
 bool currentJerk = false;
 bool seizing = false;
 int prevBPM;
@@ -82,38 +84,34 @@ if (stabilized){
 unsigned long currentMillis = millis();
 
 
-//Serial.println("current bpm");
-//Serial.println(myBPM);
-
-
-//Serial.println(currentMillis - previousMillis);
-
-if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <= 7015) {
+	
+//calculating BMP diff every 7 seconds
+if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <= 7015 && !seizing) {
      bpmDiff = myBPM - prevBPM;
      previousMillis = currentMillis;
      
-    Serial.print("DIFF: ");
-    Serial.println(bpmDiff); 
+    //seize threshold = 50+bmp jump
+	if (bmpDiff >= 50){
+		jerks = 0;
+		seizing = true;
+	}
+	
     prevBPM = myBPM;
-  
+    startSeizeMillis = currentMillis;
 }
 
-  
-  
- //muscle sensor tracks tension
-    if(analogRead(A4) > mthresh)  
-    { digitalWrite(mled, HIGH);
-      //Serial.println("TENSE");
-      }
-      else
-    { digitalWrite(mled, LOW);} //end muscle sensor
-    
-  //counts jerks in the x axis of the accelerometer 
-   if(jerks == 0) 
-      {jtime1 = millis();}
-
-    jtime2 = millis();
-
+  //calculating seize duration
+  if (seizing){
+	  if (myBPM <= 110){
+		  seizeDuration = currentMillis - startSeizeMillis;
+		  Serial.print(seizeDuration);
+		  seizing = false;
+	  }
+  }
+	  
+	
+while (seizing){
+	
     if(analogRead(A0) >= 650 && !currentJerk) {
     currentJerk = true;
     jerks+=1; 
@@ -123,21 +121,26 @@ if ( currentMillis - previousMillis >= 7000  && currentMillis - previousMillis <
     if (currentJerk && analogRead(A0) < 650){
       currentJerk = false;
     }
+}
+	
+
+if (!seizing && jerks!= -1){
+	Serial.print("jerks: ");
+	Serial.println(jerks);
+}
+	
+ //muscle sensor tracks tension
+    if(analogRead(A4) > mthresh)  
+    { digitalWrite(mled, HIGH);
+      //Serial.println("TENSE");
+      }
+      else
+    { digitalWrite(mled, LOW);} //end muscle sensor
     
-  
-    if(jtime2 - jtime1 == 10000 ) {
-    Serial.print("LAST 10 SEC: ");
-    Serial.print(jerks);
-    Serial.println(" jerks.");
-  jerks = 0;
-    }// end jerk sensor 
-  
 
 
+  } //end stabilized 
 
-
-
-} //end stabilized 
     
 
 
