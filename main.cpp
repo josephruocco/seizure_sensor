@@ -1,9 +1,6 @@
 #define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
 #include "PulseSensorPlayground.h"     // Includes the PulseSensorPlayground Library.
 
-#define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
-#include "PulseSensorPlayground.h"     // Includes the PulseSensorPlayground Library.
-
 //int t = analogRead(A5); // temperature
 int m = analogRead(A4); // myoware
 int h = analogRead(A3); // heart rate
