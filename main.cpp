@@ -53,15 +53,17 @@ void loop() {
   else
     { digitalWrite(mled, LOW);} 
 
-if (bpmCounter % 20 == 0){
-int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor object that returns BPM as an "int".
-  // "myBPM" hold this BPM value now.
-  bpmCounter++; 
-}
 
-if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beat happened".
+int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor 
+
+
+	
+if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beathappened".
  //Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
  //Serial.print("BPM: ");                        // Print phrase "BPM: "
+if (myBPM >= 60 && myBPM <= 100){
+	Serial.println("STABILIZED");
+}	
  Serial.println(myBPM);                        // Print the value inside of myBPM.
 }
 
@@ -113,5 +115,3 @@ Tonic-clonic seizure: stiffness and repeated jerks
 
 Partial: elevated heart rate but symptoms are inconsistent
  */
-
-
