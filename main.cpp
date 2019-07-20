@@ -9,9 +9,9 @@ int Y = analogRead(A2);
 int Z = analogRead(A1);
 
 int jerks = 0;
-unsigned long time1 = 0; // store the initial time
-unsigned long time2; // store the current time
-
+unsigned long jtime1 = 0; // store the initial time
+unsigned long jtime2; // store the current time
+bool currentJerk = false;
 
 
 int mled = 47; // myoware
@@ -51,53 +51,69 @@ void loop() {
 int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor 
 
 
-	
+  
 if (pulseSensor.sawStartOfBeat() && !stabilized) {            // Constantly test to see if "a beathappened".
  //Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
  //Serial.print("BPM: ");                        // Print phrase "BPM: "
 if (myBPM >= 60 && myBPM <= 100){
-	Serial.println("STABILIZED");
-	stabilized = true;
-}	
- Serial.println(myBPM);                        // Print the value inside of myBPM.
+  Serial.println("STABILIZED");
+  stabilized = true;
+}
+ Serial.println(myBPM);
+ // delay(20);                    // considered best practice in a simple sketch.// Print the value inside of myBPM.
 }
 
-  delay(20);                    // considered best practice in a simple sketch.
+
  
-	
-//conditional runs when pulse sensor detects a stabilized heart beat	
+ 
+  
+//conditional runs when pulse sensor detects a stabilized heart beat  
 if (stabilized){
-	
-	
+
+  /*if (!pulseSensor.sawStartOfBeat()){
+    stabilized = false;
+    }*/
+  
  //muscle sensor tracks tension
-		if(analogRead(A4) > mthresh)	
-		{ digitalWrite(mled, HIGH);
-		  Serial.println("TENSE");}
-  	  else
-		{ digitalWrite(mled, LOW);} //end muscle sensor
-		
-	//counts jerks in the x axis of the accelerometer	
-	 if(jerks == 0) 
-    	{jtime1 = millis();}
+    if(analogRead(A4) > mthresh)  
+    { digitalWrite(mled, HIGH);
+      //Serial.println("TENSE");
+      }
+      else
+    { digitalWrite(mled, LOW);} //end muscle sensor
+    
+  //counts jerks in the x axis of the accelerometer 
+   if(jerks == 0) 
+      {jtime1 = millis();}
 
     jtime2 = millis();
 
-  	if(analogRead(A0) > 650) {
-    jerks++; }
+    if(analogRead(A0) >= 650 && !currentJerk) {
+    currentJerk = true;
+    jerks+=1; 
+    
+    }
 
-  	if(jtime2>=jtime1+10000) {
-    Serial.println("LAST 10 SEC: " + jerks + " jerks.");
-	jerks = 0;
-	}
-  } // end jerk sensor	
-		
+    if (currentJerk && analogRead(A0) < 650){
+      currentJerk = false;
+    }
+    
+  
+    if(jtime2 - jtime1 == 10000 ) {
+    Serial.print("LAST 10 SEC: ");
+    Serial.print(jerks);
+    Serial.println(" jerks.");
+  jerks = 0;
+  }// end jerk sensor 
+  } //end stabilized 
+    
 
 
-	
-}//end stabilized
-
-
+  
 }
+
+
+
 
 /*
 
