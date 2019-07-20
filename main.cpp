@@ -8,8 +8,7 @@ int X = analogRead(A0);
 int Y = analogRead(A2);
 int Z = analogRead(A1);
 
-int count = 0;
-int jpm ;
+int jerks = 0;
 unsigned long time1 = 0; // store the initial time
 unsigned long time2; // store the current time
 
@@ -49,17 +48,11 @@ void loop() {
 
    
 
-  if(analogRead(A4) > mthresh)
-    { digitalWrite(mled, HIGH);}
-  else
-    { digitalWrite(mled, LOW);} 
-
-
 int myBPM = pulseSensor.getBeatsPerMinute();// Calls function on our pulseSensor 
 
 
 	
-if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beathappened".
+if (pulseSensor.sawStartOfBeat() && !stabilized) {            // Constantly test to see if "a beathappened".
  //Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
  //Serial.print("BPM: ");                        // Print phrase "BPM: "
 if (myBPM >= 60 && myBPM <= 100){
@@ -70,41 +63,38 @@ if (myBPM >= 60 && myBPM <= 100){
 }
 
   delay(20);                    // considered best practice in a simple sketch.
-
-
-/*
-  if(analogRead(A3) > hthresh)
-    { digitalWrite(hled,HIGH);} 
-  else 
-    { digitalWrite(hled,LOW);}
-*/
-
-  if(count == 0) 
-    {time1 = millis();}
-
-  time2 = millis();
-
-  if(analogRead(A0) > 650) {
-    count++; }
-
-  if(time2>=time1+10000) {
-    jpm = count * 6;
-
-    if(jpm >= 2000){
-      digitalWrite(aled, HIGH);
-      jpm=0;
-
-    }
-    else {digitalWrite(aled, LOW);}
-
-    time2 = 0;
-    count = 0;
-
-  }
+ 
 	
-	if (stabilized){
-		//heart code goes here
+//conditional runs when pulse sensor detects a stabilized heart beat	
+if (stabilized){
+	
+	
+ //muscle sensor tracks tension
+		if(analogRead(A4) > mthresh)	
+		{ digitalWrite(mled, HIGH);
+		  Serial.println("TENSE");}
+  	  else
+		{ digitalWrite(mled, LOW);} //end muscle sensor
+		
+	//counts jerks in the x axis of the accelerometer	
+	 if(jerks == 0) 
+    	{jtime1 = millis();}
+
+    jtime2 = millis();
+
+  	if(analogRead(A0) > 650) {
+    jerks++; }
+
+  	if(jtime2>=jtime1+10000) {
+    Serial.println("LAST 10 SEC: " + jerks + " jerks.");
+	jerks = 0;
 	}
+  } // end jerk sensor	
+		
+
+
+	
+}//end stabilized
 
 
 }
